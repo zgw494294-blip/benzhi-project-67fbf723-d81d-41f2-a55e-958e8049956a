@@ -90,7 +90,7 @@ func (s *Service) Search(f ListFilter) (ListResult, error) {
 		if f.Status != "" && f.Status != t.Status {
 			continue
 		}
-		items = append(items, TrialSummary{t.TrialID, t.SpeciesName, t.AccessionCode, t.CollectionBatch, t.Status, t.Revision, t.CreatedAt, t.NextActions(), t.Status == domain.Closed})
+		items = append(items, TrialSummary{t.TrialID, t.SpeciesName, t.AccessionCode, t.CollectionBatch, t.Status, t.Revision, t.CreatedAt, t.NextActions(), t.Status == domain.Closed || !t.Integrity.Valid})
 	}
 	sort.SliceStable(items, func(i, j int) bool {
 		if items[i].CreatedAt.Equal(items[j].CreatedAt) {

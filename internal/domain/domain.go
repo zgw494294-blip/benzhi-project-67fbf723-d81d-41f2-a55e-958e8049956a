@@ -890,6 +890,9 @@ func VerifyEvents(events []Event) IntegrityStatus {
 	return IntegrityStatus{Valid: true, LastTrustedRevision: lastRev}
 }
 func (t *Trial) NextActions() []string {
+	if !t.Integrity.Valid {
+		return []string{"VIEW"}
+	}
 	switch t.Status {
 	case Draft:
 		return []string{"PREVIEW_PROTOCOL", "LOCK_PROTOCOL"}

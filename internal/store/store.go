@@ -51,7 +51,16 @@ func (s *Store) getLocked(id string) (*domain.Trial, error) {
 	if json.Unmarshal(b, &t) != nil {
 		return nil, errors.New("快照损坏")
 	}
-	events, readErr := readEvents(s.eventPath(id))
+	s.verifyIntegrityLocked(&t)
+	return &t, nil
+}
+
+// verifyIntegrityLocked restores live integrity information for a trial
+// snapshot by reading its event chain and review package files. This mirrors
+// the checks performed in getLocked so that list-level reads expose the same
+// read-only state as detail-level reads.
+func (s *Store) verifyIntegrityLocked(t *domain.Trial) {
+	events, readErr := readEvents(s.eventPath(t.TrialID))
 	if readErr == nil && len(events) > 0 {
 		t.Events = events
 	}
@@ -81,7 +90,6 @@ func (s *Store) getLocked(id string) (*domain.Trial, error) {
 			break
 		}
 	}
-	return &t, nil
 }
 
 func (s *Store) Create(t *domain.Trial) error {
@@ -269,6 +277,7 @@ func (s *Store) listLocked() ([]domain.Trial, error) {
 		}
 		var t domain.Trial
 		if json.Unmarshal(b, &t) == nil {
+			s.verifyIntegrityLocked(&t)
 			out = append(out, t)
 		}
 	}
