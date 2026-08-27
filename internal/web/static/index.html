@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>种子萌发试验审定工作台</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <header><h1>种子萌发试验审定工作台</h1><button id="refresh" type="button">刷新</button></header>
+  <main>
+    <section>
+      <h2>试验批次</h2>
+      <form id="filters" class="toolbar">
+        <label>物种关键字<input name="species"></label>
+        <label>采集批号<input name="collectionBatch"></label>
+        <label>状态<select name="status"><option value="">全部</option><option>DRAFT</option><option>PROTOCOL_LOCKED</option><option>OBSERVING</option><option>REVIEW_PENDING</option><option>CORRECTION_REQUIRED</option><option>CLOSED</option></select></label>
+        <button>筛选</button>
+      </form>
+      <p id="total"></p><ul id="trials"></ul>
+      <h3>建立试验</h3>
+      <form id="create">
+        <label>试验编号<input name="trialId" required><small data-error="trialId"></small></label>
+        <label>物种<input name="speciesName" required></label>
+        <label>种质编号<input name="accessionCode"></label>
+        <label>采集批号<input name="collectionBatch"><small data-error="collectionBatch"></small></label>
+        <label>重复组数<input name="replicateCount" type="number" min="1" value="3"></label>
+        <label>每组种子数<input name="seedsPerReplicate" type="number" min="1" value="20"></label>
+        <label>操作人<input name="actor" value="研究员"></label><button>建立试验</button>
+      </form>
+    </section>
+    <section id="detail"><p>请选择一个试验批次。</p></section>
+  </main>
+  <script src="/static/app.js"></script>
+</body>
+</html>
