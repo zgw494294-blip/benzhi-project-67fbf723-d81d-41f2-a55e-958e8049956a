@@ -24,22 +24,30 @@ type ConflictError struct {
 func (e *ConflictError) Error() string { return e.Message }
 
 type Store struct {
-	Dir  string
-	mu   sync.RWMutex
-	idem map[string][]byte
+	Dir       string
+	mu        sync.RWMutex
+	idem      map[string][]byte
+	snapshots map[string]*domain.Trial
 }
 
 func New(dir string) (*Store, error) {
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return nil, err
 	}
-	return &Store{Dir: dir, idem: map[string][]byte{}}, nil
+	return &Store{Dir: dir, idem: map[string][]byte{}, snapshots: map[string]*domain.Trial{}}, nil
 }
 
 func (s *Store) Get(id string) (*domain.Trial, error) {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-	return s.getLocked(id)
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if cached, ok := s.snapshots[id]; ok {
+		return cached, nil
+	}
+	t, err := s.getLocked(id)
+	if err == nil {
+		s.snapshots[id] = t
+	}
+	return t, err
 }
 
 func (s *Store) getLocked(id string) (*domain.Trial, error) {
@@ -168,6 +176,7 @@ func (s *Store) Save(t *domain.Trial, expected int64, key string) (*domain.Trial
 		}
 		s.idem[cacheKey] = out
 	}
+	s.snapshots[t.TrialID] = t
 	return t, nil
 }
 
